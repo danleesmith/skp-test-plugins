@@ -1,4 +1,4 @@
-module CommunityExtensions::ScenarioModeller
+module CommunityExtensions::MyTestPlugins
 
 	def self.merger
 
@@ -56,4 +56,4 @@ module CommunityExtensions::ScenarioModeller
 
 	end # def Merger
 
-end # module CommunityExtensions::ScenarioModeller
+end # module CCommunityExtensions::MyTestPlugins

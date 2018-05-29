@@ -7,7 +7,7 @@ require File.join(File.dirname(__FILE__), "reporter.rb")
 # Show the ruby console for display and debug
 SKETCHUP_CONSOLE.show
 
-module CommunityExtensions::ScenarioModeller
+module CommunityExtensions::MyTestPlugins
 
 	# Establish UI Protocol
 	unless file_loaded?(__FILE__)
@@ -22,4 +22,4 @@ module CommunityExtensions::ScenarioModeller
 
 	end # file_loaded
 
-end # module CommunityExtensions::ScenarioModeller
+end # module CommunityExtensions::MyTestPlugins

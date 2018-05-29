@@ -1,4 +1,4 @@
-module CommunityExtensions::ScenarioModeller
+module CommunityExtensions::MyTestPlugins
 
 	def self.reporter
 
@@ -55,4 +55,4 @@ module CommunityExtensions::ScenarioModeller
 
 	end # Defenition
 
-end # module CommunityExtensions::ScenarioModeller
+end # module CommunityExtensions::MyTestPlugins

@@ -1,6 +1,6 @@
 require 'json'
 
-module CommunityExtensions::ScenarioModeller
+module CommunityExtensions::MyTestPlugins
 
 	# ------------------------------------------------------
 
@@ -139,19 +139,40 @@ module CommunityExtensions::ScenarioModeller
 
 	def self.createPropbase(features, offset)
 
-		properties = Sketchup.active_model.entities.add_group
-		properties.entities.add_cpoint(Geom::Point3d.new(0,0,0))
+		# ------------------------------------------------------
+		# Create new feature arrays
+		properties = Array.new
+		streets = Array.new
 
-		streets = Sketchup.active_model.entities.add_group
-		streets.entities.add_cpoint(Geom::Point3d.new(0,0,0))
-
+		# Loop through features and separate as required
 		features.each do |feature|
 
-			type = feature["geometry"]["type"]
-			parts = feature["geometry"]["coordinates"]
 			attribs = feature["properties"]
 
-			# ------------------------------------------------------
+			if attribs["TYPE"] == "Property"
+
+				properties.push(feature)
+
+			elsif attribs["TYPE"] == "Street"
+
+				streets.push(feature)
+
+			end
+
+		end
+
+		# ------------------------------------------------------
+		# Create Properties
+
+		prop_group = Sketchup.active_model.entities.add_group
+		prop_group.entities.add_cpoint(Geom::Point3d.new(0,0,0))
+		prop_group.name = "Property Base"
+
+		properties.each do |property|
+
+			type = property["geometry"]["type"]
+			parts = property["geometry"]["coordinates"]
+			attribs = property["properties"]
 
 			if type == "Polygon"
 
@@ -166,24 +187,20 @@ module CommunityExtensions::ScenarioModeller
 
 				if points.length > 3
 
-					
-					if attribs["TYPE"] == "Property"
+					prop = prop_group.entities.add_group
 
-						prop = properties.entities.add_face(points)
-						if prop
-							prop.reverse!
-							prop.material = 0xaaaaaa
-						end
+					face = prop.entities.add_face(points)
+					face.reverse!
+					face.material = 0xaaaaaa
 
-					elsif attribs["TYPE"] == "Street"
+					# Apply attributes to face
+					attribs.each_pair do |attrib, value|
 
-						seg = streets.entities.add_face(points)
-						if seg
-							seg.reverse!
-							seg.material = 0xffffff
-						end
+						face.set_attribute("attributes", attrib, value)
 
 					end
+
+					prop.explode
 
 				end
 
@@ -191,8 +208,67 @@ module CommunityExtensions::ScenarioModeller
 
 		end
 
-		properties.entities.grep(Sketchup::ContructionPoint)[0].erase!
-		streets.entities.grep(Sketchup::ConstructionPoint)[0].erase!
+		# Remove construction point
+		prop_group.entities.grep(Sketchup::ConstructionPoint)[0].erase!
+
+		# ------------------------------------------------------
+		# Create Streets
+
+		street_group = Sketchup.active_model.entities.add_group
+		street_group.entities.add_cpoint(Geom::Point3d.new(0,0,0))
+		street_group.name = "Street Segments"
+
+		streets.each do |segment|
+
+			type = segment["geometry"]["type"]
+			parts = segment["geometry"]["coordinates"]
+			attribs = segment["properties"]
+
+			if type == "Polygon"
+
+				points = Array.new
+
+				parts[0].each do |coord|
+
+					pt = coordToPoint(coord)
+					points.push(redrawPoint(pt, offset))
+
+				end
+
+				if points.length > 3
+
+					seg = street_group.entities.add_group
+
+					face = seg.entities.add_face(points)
+					face.reverse!
+
+					if attribs["DETAILS"] == "River"
+						
+						face.material = 0xb5e3f4
+
+					else
+
+						face.material = 0xffffff
+
+					end
+
+					# Apply attributes to face
+					attribs.each_pair do |attrib, value|
+
+						face.set_attribute("attributes", attrib, value)
+
+					end
+
+					seg.explode
+
+				end
+
+			end
+
+		end
+
+		# Remove construction point
+		street_group.entities.grep(Sketchup::ConstructionPoint)[0].erase!
 
 	end # Create Propbase Defenition
 
@@ -263,4 +339,4 @@ module CommunityExtensions::ScenarioModeller
 	
 	end # Importer Defenition
 
-end # module CommunityExtensions::ScenarioModeller
+end # module CommunityExtensions::MyTestPlugins
