@@ -1,0 +1,8 @@
+# Ignore all files in root except for those specified
+
+/*
+
+!.gitignore
+!README.md
+!my_testplugins.rb
+!my_testplugins/
